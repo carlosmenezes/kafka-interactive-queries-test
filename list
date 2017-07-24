@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+docker exec kafkainteractivequeriestest_kafka_1 /kafka/bin/kafka-topics.sh --zookeeper zookeeper --list
+
+exit 0

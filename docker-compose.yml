@@ -1,0 +1,20 @@
+version: '3'
+services:
+  app:
+    build: .
+    depends_on:
+      - kafka
+
+  zookeeper:
+    image: debezium/zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: debezium/kafka
+    environment:
+      ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"

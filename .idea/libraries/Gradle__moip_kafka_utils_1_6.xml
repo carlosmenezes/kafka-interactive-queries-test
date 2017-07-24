@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: moip:kafka-utils:1.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/moip/kafka-utils/1.6/68f7c48f4eabb9c37c997815f7983b2899ecd74d/kafka-utils-1.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/moip/kafka-utils/1.6/83099127f3bcf5cb892e158a1d86e30299ba1b73/kafka-utils-1.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

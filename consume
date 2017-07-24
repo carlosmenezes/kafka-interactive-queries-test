@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+docker exec kafkainteractivequeriestest_kafka_1 bin/kafka-console-consumer.sh  --bootstrap-server kafka:9092 --topic $1 --property print.key=true --property key.separator=, $2
+
+exit 0
