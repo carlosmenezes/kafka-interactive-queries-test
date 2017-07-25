@@ -51,10 +51,17 @@ open class EntriesTopology {
         groupedByMpa.aggregate(
                 { -> 0L },
                 { _, value, aggregate -> aggregate + value },
-                TimeWindows.of(2000L),
+                TimeWindows.of(2000L).advanceBy(2000L),
                 Serdes.Long(),
                 "test.aggregate.by.days")
-                .to("test.balance.by.days")
+                .toStream { key, value -> key.key() }
+                .to(Serdes.String(), Serdes.Long(), "test.balance.by.days")
+
+        builder.stream(Serdes.String(), Serdes.Long(), "test.balance")
+                .print("test.balance")
+
+        builder.stream(Serdes.String(), Serdes.Long(), "test.balance.by.days")
+                .print("test.balance.by.days")
 
         return builder
     }
