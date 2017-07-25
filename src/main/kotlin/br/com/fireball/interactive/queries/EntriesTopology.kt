@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.kstream.KStreamBuilder
+import org.apache.kafka.streams.kstream.TimeWindows
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -34,30 +35,30 @@ open class EntriesTopology {
         val jsonSerde = GenericJsonSerde(Entry::class.java)
         val builder = KStreamBuilder()
 
-        val entriesStream = builder.stream(Serdes.StringSerde(), jsonSerde, "test.entries")
+        val entriesStream = builder.stream(Serdes.String(), jsonSerde, "test.entries")
 
-        val groupedByMpa = entriesStream.map { _, value -> generateKV(value.moipAccount, value.amount) }.groupByKey()
-        val consolidatedByMpa = groupedByMpa.reduce({ value1, value2 ->
+        val groupedByMpa = entriesStream.map { _, value ->
+            KeyValue(value.moipAccount, value.amount)
+        }.groupByKey(Serdes.String(), Serdes.Long())
 
-            logger.info("MAP [{} ${value1.javaClass}] to [{} ${value2.javaClass}]", value1, value2)
-            value1 + value2
-        },
-                "consolidated_by_mpa")
-                .to(Serdes.StringSerde(), Serdes.LongSerde(), "test.balance")
+        groupedByMpa.aggregate(
+                { -> 0L },
+                { _, value, aggregate -> aggregate + value },
+                Serdes.Long(),
+                "test.aggregate")
+                .to(Serdes.String(), Serdes.Long(), "test.balance")
+
+        groupedByMpa.aggregate(
+                { -> 0L },
+                { _, value, aggregate -> aggregate + value },
+                TimeWindows.of(2000L),
+                Serdes.Long(),
+                "test.aggregate.by.days")
+                .to("test.balance.by.days")
 
         return builder
     }
-
-    private fun sumValues(value1: Any, value2: Any): Any {
-        logger.info("SUM [{} ${value1.javaClass}] and [{} ${value2.javaClass}]", value1, value2)
-
-        return value2
-    }
-
-    private fun generateKV(mpa: String, amount: Long): KeyValue<String, Long> {
-        logger.info("MAP [{} ${mpa.javaClass}] to [{} ${amount.javaClass}]", mpa, amount)
-        return KeyValue(mpa, amount)
-    }
 }
+
 
 
